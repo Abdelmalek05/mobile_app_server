@@ -1,61 +1,22 @@
 from rest_framework import serializers
-from .models import (
-    AuditLogs,
-    LoginHistory,
-    MobilisPhonePrefixes,
-    OtpLogs,
-    RefreshTokens,
-    UserSessions,
-    Users
-)
+from .models import Prospect, Contact, Phone, OTP
 
-
-# can be modifide to include or exclude specific fields
-
-class AuditLogsSerializer(serializers.ModelSerializer):
+class ProspectSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AuditLogs
-        fields = '__all__'  
-        managed = False  # Django will not try to create/drop this table
-
-
-class LoginHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LoginHistory
+        model = Prospect
         fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
 
-
-class MobilisPhonePrefixesSerializer(serializers.ModelSerializer):
+class ContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MobilisPhonePrefixes
+        model = Contact
         fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
 
-
-class OtpLogsSerializer(serializers.ModelSerializer):
+class PhoneSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OtpLogs
+        model = Phone
         fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
 
-
-class RefreshTokensSerializer(serializers.ModelSerializer):
+class OTPSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RefreshTokens
-        fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
-
-
-class UserSessionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserSessions
-        fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
-
-
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Users
-        fields = '__all__'
-        managed = False  # Django will not try to create/drop this table
+        model = OTP
+        fields = ['phone_number', 'otp_code', 'created_at']

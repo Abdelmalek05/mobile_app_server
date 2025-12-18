@@ -1,123 +1,73 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+import uuid
 
-
-class AuditLogs(models.Model):
-    id = models.UUIDField(primary_key=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
-    action = models.CharField(max_length=100)
-    resource = models.CharField(max_length=100, blank=True, null=True)
-    details = models.JSONField(blank=True, null=True)
-    ip_address = models.CharField(max_length=45, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'audit_logs'
-
-
-class LoginHistory(models.Model):
-    id = models.UUIDField(primary_key=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
-    phone_number = models.CharField(max_length=10)
-    otp_requested_at = models.DateTimeField(blank=True, null=True)
-    otp_verified_at = models.DateTimeField(blank=True, null=True)
-    login_status = models.CharField(max_length=50, blank=True, null=True)
-    failure_reason = models.CharField(max_length=255, blank=True, null=True)
-    ip_address = models.CharField(max_length=45, blank=True, null=True)
-    device_info = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
+class Prospect(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entreprise = models.TextField()
+    adresse = models.TextField(blank=True, null=True)
+    wilaya = models.TextField(blank=True, null=True)
+    commune = models.TextField(blank=True, null=True)
+    phone_number = models.TextField(blank=True, null=True)
+    email = models.TextField(blank=True, null=True)
+    categorie = models.TextField(blank=True, null=True)
+    forme_legale = models.TextField(blank=True, null=True)
+    secteur = models.TextField(blank=True, null=True)
+    sous_secteur = models.TextField(blank=True, null=True)
+    nif = models.TextField(blank=True, null=True)
+    registre_commerce = models.TextField(blank=True, null=True)
+    status = models.TextField()
 
     class Meta:
         managed = False
-        db_table = 'login_history'
+        db_table = 'prospects'
 
+    def __str__(self):
+        return self.entreprise
 
-class MobilisPhonePrefixes(models.Model):
-    id = models.UUIDField(primary_key=True)
-    prefix = models.CharField(unique=True, max_length=3)
-    provider_name = models.CharField(max_length=50)
-    is_active = models.BooleanField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'mobilis_phone_prefixes'
-
-
-class OtpLogs(models.Model):
-    id = models.UUIDField(primary_key=True)
-    phone_number = models.CharField(max_length=10)
-    otp_code = models.CharField(max_length=5)
-    request_count = models.IntegerField(blank=True, null=True)
-    max_requests = models.IntegerField(blank=True, null=True)
-    first_requested_at = models.DateTimeField(blank=True, null=True)
-    last_requested_at = models.DateTimeField(blank=True, null=True)
-    expires_at = models.DateTimeField()
-    is_verified = models.BooleanField(blank=True, null=True)
-    verification_attempts = models.IntegerField(blank=True, null=True)
-    max_attempts = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
+class Contact(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.TextField()
+    phone_number = models.TextField()
+    email = models.TextField()
+    company = models.TextField(blank=True, null=True)
+    type = models.TextField()
+    prospect = models.ForeignKey(Prospect, models.DO_NOTHING, blank=True, null=True, related_name='contacts')
 
     class Meta:
         managed = False
-        db_table = 'otp_logs'
+        db_table = 'contacts'
 
+    def __str__(self):
+        return self.name
 
-class RefreshTokens(models.Model):
-    id = models.UUIDField(primary_key=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
-    token_hash = models.CharField(max_length=255)
-    expires_at = models.DateTimeField()
-    is_revoked = models.BooleanField(blank=True, null=True)
-    revoked_at = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+class Phone(models.Model):
+    phone_number = models.CharField(primary_key=True, max_length=20) 
 
     class Meta:
         managed = False
-        db_table = 'refresh_tokens'
+        db_table = 'phones'
 
+    def __str__(self):
+        return self.phone_number
 
-class UserSessions(models.Model):
-    id = models.UUIDField(primary_key=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
-    access_token_hash = models.CharField(max_length=255)
-    device_id = models.CharField(max_length=255, blank=True, null=True)
-    device_name = models.CharField(max_length=255, blank=True, null=True)
-    platform = models.CharField(max_length=50, blank=True, null=True)
-    app_version = models.CharField(max_length=20, blank=True, null=True)
-    is_active = models.BooleanField(blank=True, null=True)
-    last_activity = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    expires_at = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'user_sessions'
-
-
-class Users(models.Model):
-    id = models.UUIDField(primary_key=True)
-    phone_number = models.CharField(unique=True, max_length=10)
-    role = models.CharField(max_length=50)
-    first_name = models.CharField(max_length=100, blank=True, null=True)
-    last_name = models.CharField(max_length=100, blank=True, null=True)
-    email = models.CharField(unique=True, max_length=100, blank=True, null=True)
-    is_active = models.BooleanField(blank=True, null=True)
-    failed_login_attempts = models.IntegerField(blank=True, null=True)
-    locked_until = models.DateTimeField(blank=True, null=True)
-    last_login = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+class OTP(models.Model):
+    # Composite primary key logic is tricky in Django. 
+    # Usually we treat one as PK or use `unique_together`. 
+    # Since schema is fixed, we'll map fields and use `unique_together` for Django's knowledge,
+    # but actual DB usage might differ. 
+    # However, Django ORM *needs* a single primary key to work well for updates/deletes.
+    # The user said "composite primary key (phone_number + otp_code)".
+    # We will mark `phone_number` as PK for Django model just to make it run, 
+    # but be careful with .save() if it's not actually unique alone.
+    # A better approach for Django read-only/managed=False is to maybe use a surrogate key if one existed,
+    # but here we might have to pick one. 
+    # LET'S ASSUME we can just use phone_number as the logical PK for querying by phone.
+    
+    phone_number = models.ForeignKey(Phone, models.DO_NOTHING, db_column='phone_number')
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         managed = False
-        db_table = 'users'
+        db_table = 'otps'
+        unique_together = (('phone_number', 'otp_code'),)

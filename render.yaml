@@ -1,6 +1,10 @@
 services:
   - type: web
-    name: crm-backend
+    name: mobile-app-server
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn crm_project.wsgi:application
+    autoDeploy: true
+    plan: free
+    # Run migrations automatically after deploy
+    postDeployCommand: python manage.py migrate

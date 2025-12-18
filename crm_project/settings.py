@@ -16,9 +16,17 @@ import dj_database_url
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'Mobilis2025',
+        'HOST': 'db.akhqjiiulyucgmeopzzu.supabase.co',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
+    }
 }
 
 
@@ -92,16 +100,7 @@ WSGI_APPLICATION = 'crm_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mobilis_auth',      # your DB name
-        'USER': 'crm_api',           # DB user
-        'PASSWORD': 'mobilis123',    # DB password
-        'HOST': 'localhost',         # DB host
-        'PORT': '5432',              # default PostgreSQL port
-    }
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
