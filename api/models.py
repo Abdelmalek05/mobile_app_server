@@ -18,7 +18,7 @@ class Prospect(models.Model):
     status = models.TextField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'prospects'
 
     def __str__(self):
@@ -34,7 +34,7 @@ class Contact(models.Model):
     prospect = models.ForeignKey(Prospect, models.DO_NOTHING, blank=True, null=True, related_name='contacts')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'contacts'
 
     def __str__(self):
@@ -44,7 +44,7 @@ class Phone(models.Model):
     phone_number = models.CharField(primary_key=True, max_length=20) 
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'phones'
 
     def __str__(self):
@@ -68,6 +68,6 @@ class OTP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'otps'
         unique_together = (('phone_number', 'otp_code'),)
