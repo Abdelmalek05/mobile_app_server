@@ -1,22 +1,26 @@
 from rest_framework import serializers
-from .models import Prospect, Contact, Phone, OTP
+from .models import PhoneNumber, OTP, Contact, Prospect
+
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = ['id', 'phone_number', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class OTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTP
+        fields = ['id', 'phone_number', 'otp_code', 'is_valid', 'created_at', 'expires_at']
+        read_only_fields = ['id', 'otp_code', 'is_valid', 'created_at', 'expires_at']
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'phone_number', 'email', 'company', 'type']
+        read_only_fields = ['id']
 
 class ProspectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prospect
         fields = '__all__'
-
-class ContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = '__all__'
-
-class PhoneSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Phone
-        fields = '__all__'
-
-class OTPSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OTP
-        fields = ['phone_number', 'otp_code', 'created_at']
+        read_only_fields = ['id']
