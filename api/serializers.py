@@ -13,6 +13,11 @@ class OTPSerializer(serializers.ModelSerializer):
         fields = ['id', 'phone_number', 'otp_code', 'is_valid', 'created_at', 'expires_at']
         read_only_fields = ['id', 'otp_code', 'is_valid', 'created_at', 'expires_at']
 
+class OTPVerifySerializer(serializers.Serializer):
+    """Serializer for OTP verification endpoint"""
+    phone_number = serializers.CharField(required=True, help_text="Phone number string")
+    otp_code = serializers.CharField(required=True, help_text="OTP code to verify")
+
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact

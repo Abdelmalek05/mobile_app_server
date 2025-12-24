@@ -3,7 +3,7 @@ from django.db import models
 
 class PhoneNumber(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone_number = models.CharField(max_length=20, unique=True)
+    phone_number = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
