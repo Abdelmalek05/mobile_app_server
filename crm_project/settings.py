@@ -56,12 +56,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',    # Manages static files (CSS, JS, images)
     
     'rest_framework',                # Third-party app: Django REST Framework for building APIs
+    'rest_framework.authtoken',      # Token authentication for API
     'api.apps.ApiConfig',   
     'corsheaders',
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],

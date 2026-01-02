@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PhoneNumber, OTP, Contact, Prospect
+from .models import PhoneNumber, OTP, Contact, Prospect, Activity
 
 class PhoneNumberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +29,9 @@ class ProspectSerializer(serializers.ModelSerializer):
         model = Prospect
         fields = '__all__'
         read_only_fields = ['id']
+
+class ActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = ['id', 'title', 'description', 'type', 'timestamp']
+        read_only_fields = ['id', 'timestamp']

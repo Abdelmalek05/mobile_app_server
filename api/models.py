@@ -1,5 +1,31 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
+
+class Activity(models.Model):
+    ACTIVITY_TYPE_CHOICES = (
+        ('prospect_added', 'Prospect Added'),
+        ('client_added', 'Client Added'),
+        ('status_updated', 'Status Updated'),
+        ('meeting_scheduled', 'Meeting Scheduled'),
+        ('other', 'Other'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    type = models.CharField(max_length=50, choices=ACTIVITY_TYPE_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    contact = models.ForeignKey('Contact', on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    prospect = models.ForeignKey('Prospect', on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+
+    class Meta:
+        db_table = 'activities'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.title} - {self.timestamp}"
 
 class PhoneNumber(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

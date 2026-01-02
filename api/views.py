@@ -1,13 +1,17 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authtoken.models import Token
 from django.utils import timezone
 from datetime import timedelta
 import random
 import uuid
 
-from .models import PhoneNumber, OTP, Contact, Prospect
-from .serializers import PhoneNumberSerializer, OTPSerializer, OTPVerifySerializer, ContactSerializer, ProspectSerializer
+from .models import PhoneNumber, OTP, Contact, Prospect, Activity
+from .serializers import PhoneNumberSerializer, OTPSerializer, OTPVerifySerializer, ContactSerializer, ProspectSerializer, ActivitySerializer
 
 class PhoneNumberViewSet(viewsets.ModelViewSet):
     queryset = PhoneNumber.objects.all()
@@ -32,10 +36,27 @@ class OTPViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def request_otp(self, request):
-        phone_number = request.data.get("phone_number")
-        # create an OTP here, e.g., from request
-        otp = OTP.objects.create(phone_number_id=PhoneNumber.objects.get(phone_number=phone_number).id, otp_code="12345")
-        return Response({"success": True})
+        phone_number_str = request.data.get("phone_number")
+        if not phone_number_str:
+            return Response({'error': 'Phone number is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Check if phone number exists (do NOT create)
+            phone_obj = PhoneNumber.objects.get(phone_number=phone_number_str)
+        except PhoneNumber.DoesNotExist:
+            return Response({'error': 'Phone number not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Generate OTP for existing phone number
+        otp_code = f"{random.randint(10000, 99999)}"
+        otp = OTP.objects.create(
+            phone_number=phone_obj, 
+            otp_code=otp_code
+        )
+        return Response({
+            "success": True,
+            "message": "OTP generated successfully",
+            "otp_code": otp_code
+        }, status=status.HTTP_201_CREATED)
 
     def create(self, request, *args, **kwargs):
         """
@@ -84,13 +105,19 @@ class OTPViewSet(viewsets.ModelViewSet):
         """
         Custom action: POST to /api/otps/generate/
         Expects: {"phone_number": "+1234567890"} (actual phone number string)
+        
+        LOGIN ENDPOINT: Only generates OTP for EXISTING phone numbers.
+        Does NOT create phone numbers.
         """
         phone_number_str = request.data.get('phone_number')
         if not phone_number_str:
             return Response({'error': 'Phone number is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Ensure phone number exists in DB
-        phone_obj, _ = PhoneNumber.objects.get_or_create(phone_number=phone_number_str)
+        try:
+            # Check if phone number exists (do NOT create with get_or_create)
+            phone_obj = PhoneNumber.objects.get(phone_number=phone_number_str)
+        except PhoneNumber.DoesNotExist:
+            return Response({'error': 'Phone number not found'}, status=status.HTTP_404_NOT_FOUND)
 
         otp_code = f"{random.randint(10000, 99999)}"
         expires_at = timezone.now() + timedelta(minutes=5)
@@ -136,7 +163,23 @@ class OTPViewSet(viewsets.ModelViewSet):
             # Mark as used (invalidate)
             otp.is_valid = False
             otp.save()
-            return Response({'message': 'OTP verified successfully'}, status=status.HTTP_200_OK)
+            
+            # Get or create a user for this phone number (for activities tracking)
+            from django.contrib.auth.models import User
+            user, _ = User.objects.get_or_create(
+                username=phone_number_str,
+                defaults={'is_active': True}
+            )
+            
+            # Get or create auth token for this user
+            token, _ = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'OTP verified successfully',
+                'token': token.key,
+                'user_id': user.id,
+                'phone_number': phone_number_str
+            }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -149,3 +192,14 @@ class ProspectViewSet(viewsets.ModelViewSet):
     queryset = Prospect.objects.all()
     serializer_class = ProspectSerializer
     lookup_field = 'id'
+
+class ActivityViewSet(ReadOnlyModelViewSet):
+    queryset = Activity.objects.all().order_by('-timestamp')[:10]
+    serializer_class = ActivitySerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        """Return latest 10 activities globally (Contact and Prospect CRUD operations)"""
+        return Activity.objects.all().order_by('-timestamp')[:10]
