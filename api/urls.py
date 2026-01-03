@@ -5,8 +5,8 @@ from .views import PhoneNumberViewSet, OTPViewSet, ContactViewSet, ProspectViewS
 router = DefaultRouter()
 router.register(r'phone-numbers', PhoneNumberViewSet)
 router.register(r'otps', OTPViewSet, basename='otps')
-router.register(r'contacts', ContactViewSet)
-router.register(r'prospects', ProspectViewSet)
+router.register(r'contacts', ContactViewSet, basename='contacts')
+router.register(r'prospects', ProspectViewSet, basename='prospects')
 router.register(r'activities', ActivityViewSet, basename='activities')
 
 urlpatterns = [

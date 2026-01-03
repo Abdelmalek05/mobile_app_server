@@ -61,6 +61,7 @@ class Contact(models.Model):
     email = models.CharField(max_length=255)
     company = models.CharField(max_length=255, null=True, blank=True)
     type = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contacts')
 
     class Meta:
         #managed = False
@@ -84,6 +85,7 @@ class Prospect(models.Model):
     nif = models.CharField(max_length=50, null=True, blank=True)
     registre_commerce = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prospects')
 
     class Meta:
         #managed = False

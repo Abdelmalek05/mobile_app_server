@@ -184,22 +184,39 @@ class OTPViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ContactViewSet(viewsets.ModelViewSet):
-    queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    def get_queryset(self):
+        """Return only contacts belonging to the logged-in user"""
+        return Contact.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """Automatically assign the logged-in user when creating a contact"""
+        serializer.save(user=self.request.user)
 
 class ProspectViewSet(viewsets.ModelViewSet):
-    queryset = Prospect.objects.all()
     serializer_class = ProspectSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    def get_queryset(self):
+        """Return only prospects belonging to the logged-in user"""
+        return Prospect.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """Automatically assign the logged-in user when creating a prospect"""
+        serializer.save(user=self.request.user)
 
 class ActivityViewSet(ReadOnlyModelViewSet):
-    queryset = Activity.objects.all().order_by('-timestamp')[:10]
     serializer_class = ActivitySerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
     def get_queryset(self):
-        """Return latest 10 activities globally (Contact and Prospect CRUD operations)"""
-        return Activity.objects.all().order_by('-timestamp')[:10]
+        """Return only activities belonging to the logged-in user, ordered by most recent"""
+        return Activity.objects.filter(user=self.request.user).order_by('-timestamp')
