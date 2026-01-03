@@ -3,22 +3,27 @@
 from django.db import migrations, models
 from django.conf import settings
 import django.db.models.deletion
-from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 
 def populate_user(apps, schema_editor):
     """Assign all contacts and prospects to the first available user, or a system user"""
     Contact = apps.get_model('api', 'Contact')
     Prospect = apps.get_model('api', 'Prospect')
-    
+    User = apps.get_model('auth', 'User')
+
     # Get or create a system user for orphaned records
     user = User.objects.first()
     if not user:
-        user = User.objects.create_user(username='system', is_active=False)
-    
+        user = User.objects.create_user(
+            username='system',
+            is_active=False,
+            last_login=now()
+        )
+
     # Update all contacts without a user
     Contact.objects.filter(user__isnull=True).update(user=user)
-    
+
     # Update all prospects without a user
     Prospect.objects.filter(user__isnull=True).update(user=user)
 
@@ -43,11 +48,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contact',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contacts', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='contacts',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
             model_name='prospect',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='prospects', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='prospects',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
