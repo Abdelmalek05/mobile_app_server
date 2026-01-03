@@ -15,4 +15,4 @@ COPY . .
 
 ENV PYTHONUNBUFFERED=1
 
-CMD sh -c "gunicorn --bind 0.0.0.0:${PORT} crm_project.wsgi:application"
+CMD sh -c "python manage.py migrate && gunicorn crm_project.wsgi:application --bind 0.0.0.0:$PORT"
